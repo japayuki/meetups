@@ -1,5 +1,38 @@
 <template>
     <v-container>
-       <h2>The Meetups Page</h2>
+       <v-layout row wrap>
+            <v-flex xs12 md3 class="pa-3" v-for="meetup in sortedMeetups" :key="meetup.id">
+                <v-card>
+                    <v-card-media
+                    :src="meetup.imgUrl"
+                    height="200px"
+                    ></v-card-media>
+                    <v-card-title primary-title>
+                        <div>
+                            <h2 class="mb-0">{{meetup.title}}</h2>
+                            <p>{{meetup.date}}</p>
+                        </div>
+                    </v-card-title>
+                    <v-card-actions>
+                        <v-btn flat color="primary" v-bind:to="'/meetup/'+meetup.mid">View Meetup</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-flex>
+        </v-layout>
     </v-container>
 </template>
+<script>
+import { mapGetters } from 'vuex'
+export default {
+    data () {
+        return {
+        }
+    },
+    computed: {
+        ...mapGetters([
+            'sortedMeetups',
+            'loadedMeetup'
+        ])
+    }
+}
+</script>

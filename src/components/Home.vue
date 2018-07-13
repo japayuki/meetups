@@ -1,9 +1,9 @@
 <template>
     <v-container>
        <v-layout row wrap>
-           <v-flex xs12>
-               <v-carousel hide-delimiters="" class='ma-4'>
-                   <v-carousel-item v-for="item in meetups" :key="item.id" :src="item.imgUrl" >
+           <v-flex xs12 sm10 offset-sm1>
+               <v-carousel hide-delimiters="" class='ma-4' contain>
+                   <v-carousel-item v-for="item in featuredMeetups" :key="item.mid" :src="item.imgUrl" :to="'/meetup/'+item.mid">
                        <div class='title'>
                            {{item.title}}
                        </div>
@@ -23,14 +23,18 @@
     </v-container>
 </template>
 <script>
+import { mapGetters } from 'vuex'
 export default {
+
     data () {
         return {
-            meetups: [
-                {imgUrl: 'https://images.pexels.com/photos/450597/pexels-photo-450597.jpeg?cs=srgb&dl=america-american-flag-architecture-450597.jpg&fm=jpg', id: 'dfrsedf4353', title: 'Meetup in New York'},
-                {imgUrl: 'https://media-cdn.tripadvisor.com/media/photo-s/12/f8/68/3d/big-bus-paris-hop-on.jpg', id: 'fdfws43e34', title: 'Meetup in Paris'},
-            ]
         }
+    },
+    computed: {
+        ...mapGetters([
+            'sortedMeetups',
+            'featuredMeetups'
+        ])
     }
 }
 </script>
