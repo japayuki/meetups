@@ -1,8 +1,8 @@
 <template>
     <v-container>
        <v-layout row wrap>
-            <v-flex xs12 md3 class="pa-3" v-for="meetup in sortedMeetups" :key="meetup.id">
-                <v-card>
+            <v-flex xs12 md3 class="pa-3" v-for="meetup in sortedMeetups" :key="meetup.mid">
+                <v-card height="400px">
                     <v-card-media
                     :src="meetup.imgUrl"
                     height="200px"

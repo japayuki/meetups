@@ -1,7 +1,7 @@
 <template>
     <v-container>
        <v-layout row wrap>
-           <v-flex xs12>
+           <v-flex xs12 sm8 offset-sm2>
                <v-card>
                     <v-card-title primary-title>
                         <div>
@@ -15,8 +15,9 @@
 
 
                     <v-card-text>
-                        <p>{{meetup.date}}</p>
-                        <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tempore, unde, neque error quod expedita cum dolorem consequatur minus excepturi aperiam, earum quo quos veniam deserunt officiis. Architecto vel aliquid natus!</p>
+                        <h3 class="ma-2"><v-icon class="mr-2" left>event</v-icon>{{meetup.date}}</h3> 
+                        <h3 class="ma-2"><v-icon class="mr-2" left>access_time</v-icon> {{meetup.time}}</h3>
+                        <p>{{meetup.description}}</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>

@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
+import * as firebase from 'firebase'
 import store from './store'
 
 Vue.use(Vuetify, { theme: {
@@ -25,5 +26,15 @@ new Vue({
   store,
   router,
   components: { App },
-  template: '<App/>'
+  template: '<App/>',
+  created () {
+    firebase.initializeApp({
+      apiKey: 'AIzaSyBX8WSA2NWZdKQi1ID0kg0ofPjsOOs7KTc',
+      authDomain: 'meetups-680cc.firebaseapp.com',
+      databaseURL: 'https://meetups-680cc.firebaseio.com',
+      projectId: 'meetups-680cc',
+      storageBucket: 'meetups-680cc.appspot.com',
+      messagingSenderId: '475927405779'
+    })
+  }
 })
