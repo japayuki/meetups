@@ -6,18 +6,20 @@
       <v-toolbar-side-icon @click.stop="sideNav = !sideNav"></v-toolbar-side-icon>
       <v-toolbar-items class="hidden-sm-and-down" >
         <v-btn flat v-for="menuItem in menuItems" :key="menuItem.title" router :to="menuItem.link"><v-icon small left >{{menuItem.icon}}</v-icon>{{menuItem.title}}</v-btn>
-        <v-btn flat @click.stop="showDialog" ><v-icon small left >fas fa-user-plus</v-icon>Modal</v-btn>
+        <v-btn v-if="!userIsAuthenticated" flat @click.stop="signUpDialog = true" ><v-icon small left >fas fa-user-plus</v-icon>Sign Up</v-btn>
+        <v-btn v-if="!userIsAuthenticated" flat @click.stop="signInDialog = true" ><v-icon small left >fas fa-sign-in-alt</v-icon>Sign In</v-btn>
       </v-toolbar-items>
     </v-toolbar>
 
-    <v-dialog v-model="dialog" max-width="500px">
+    <v-dialog v-model="signUpDialog"  max-width="500px">
       <v-card>
-        <v-card-title class="headline">Sign Up Now</v-card-title>
+        <v-card-title class="headline blue-grey lighten-5">Sign Up Now</v-card-title>
+        <v-alert class="mb-4" :type="signUpStatus.type" :value="showAlert" >{{signUpStatus.msg}}</v-alert>
+        <v-card-media src="https://images.pexels.com/photos/533444/pexels-photo-533444.jpeg" height="200px"></v-card-media>
         <v-card-text>
           <v-container grid-list-md>
             <v-layout wrap>
               <v-flex xs12>
-                <v-alert class="mb-4" :type="signUpStatus.type" :value="signUpStatus.showAlert" >{{signUpStatus.msg}}</v-alert>
                 <v-text-field name="email" type="email" label="Email" v-model="email" :rules="[rules.required]" clearable></v-text-field>
                 <v-text-field name="password" type="password" label="Password" v-model="password" :rules="[rules.required]" clearable></v-text-field>
                 <v-text-field name="confirmPassword" type="password" label="Confirm Password" v-model="confirmPassword" :rules="[rules.required, rules.confirmPassword]" clearable></v-text-field>
@@ -27,10 +29,32 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn class="primary mb-4 mr-4" flat="flat" @click="proceedSignUp">Proceed</v-btn>
+          <v-btn class="primary mb-4 mr-4"  @click="proceedSignUp" :loading="loading" :disabled="loading" >Proceed<span slot="loader" class="custom-loader"><v-icon light>cached</v-icon></span></v-btn>
         </v-card-actions>
       </v-card>
-      <p>hasError: {{signUpStatus.hasError}}</p>
+    </v-dialog>
+
+    <v-dialog v-model="signInDialog"  max-width="500px">
+      <v-card>
+        <v-card-title class="headline blue-grey lighten-5">Please sign in</v-card-title>
+        <v-alert class="ma-0" :type="signUpStatus.type" :value="showAlert" >{{signUpStatus.msg}}</v-alert>
+        <v-card-media src="https://images.pexels.com/photos/841228/pexels-photo-841228.jpeg" height="200px"></v-card-media>
+        <v-card-text>
+          <v-container grid-list-md>
+            <v-layout wrap>
+              <v-flex xs12>
+                
+                <v-text-field name="email" type="email" label="Email" v-model="email" :rules="[rules.required]" clearable></v-text-field>
+                <v-text-field name="password" type="password" label="Password" v-model="password" :rules="[rules.required]" clearable></v-text-field>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn class="primary mb-4 mr-4"  @click="proceedSignIn" :loading="loading" :disabled="loading" >Proceed<span slot="loader" class="custom-loader"><v-icon light>cached</v-icon></span></v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
 
     <v-navigation-drawer absolute temporary v-model="sideNav">
@@ -57,18 +81,13 @@ export default {
   data () {
     return {
       sideNav: null,
-      menuItems: [
-        { icon: 'fas fa-users', title: 'View Meetups', link: '/meetups' },
-        { icon: 'fas fa-adjust', title: 'Organize Meetup', link: '/meetup/new' },
-        { icon: 'fas fa-user-circle', title: 'Profile', link: '/profile' },
-        { icon: 'fas fa-user-plus', title: 'Sign Up', link: '/signup' },
-        { icon: 'fas fa-sign-in-alt', title: 'Sign In', link: '/signin' }
-      ],
-      dialog: false,
+      signUpDialog: false,
+      signInDialog: false,
       email: '',
       password: '',
       confirmPassword: '',
       showAlert: false,
+      loader: null,
       rules: {
           required: value => !!value || 'Required.',
           counter: value => value.length <= 20 || 'Max 20 characters',
@@ -83,42 +102,58 @@ export default {
   methods:
   {
     ...mapActions([
-      'ProceedSignUp'
-    ]),
-    ...mapMutations([
-      'SHOW_DIALOG'
+      'ProceedSignUp',
+      'ProceedSignIn'
     ]),
     proceedSignUp () {
       this.ProceedSignUp({email: this.email, password: this.password })
-      // this.showAlert = true
-      // if (this.signUpStatus.hasError == true) {
-      //   console.log('have errors')
-      //   setTimeout(()=> {
-      //     this.email = ''
-      //     this.password = ''
-      //     this.confirmPassword = ''
-      //   }, 3000)
-      // } else if (this.signUpStatus.hasError == false) {
-      //   console.log('has no errors')
-      //   setTimeout(()=> {
-          
-
-      //     this.dialog = false
-      //   },3000)
-      // } else {
-      //   console.log('else error')
-      // }
     },
-    showDialog () {
-      this.SHOW_DIALOG()
-      this.dialog = this.signUpStatus.showDialog
+    proceedSignIn () {
+      this.loader = true
+      this.ProceedSignIn({email: this.email, password: this.password })
     }
-
   },
   computed: {
     ...mapGetters([
-      'signUpStatus'
-    ])
+      'signUpStatus',
+      'user',
+      'loading'
+    ]),
+    formIsValid () {
+      return this.email !== "" && this.password !== "" && this.confirmPassword !== "" && this.password === this.confirmPassword
+    },
+    menuItems () {
+      let menuItems = [
+        // { icon: 'fas fa-user-plus', title: 'Sign Up', link: '/signup' },
+        // { icon: 'fas fa-sign-in-alt', title: 'Sign In', link: '/signin' }
+      ]
+      if (this.userIsAuthenticated) {
+        menuItems = [
+        { icon: 'fas fa-users', title: 'View Meetups', link: '/meetups' },
+        { icon: 'fas fa-adjust', title: 'Organize Meetup', link: '/meetup/new' },
+        { icon: 'fas fa-user-circle', title: 'Profile', link: '/profile' }
+        ]
+      }
+      return menuItems
+    },
+    userIsAuthenticated () {
+      return this.user.id !== null && this.user.id !== undefined
+    }
+  },
+  watch : {
+    signUpStatus (value) {
+      if (value !== null && value !== undefined) {
+        this.showAlert = true
+        setTimeout(()=> {
+          this.showAlert = false
+          if (value.hasError === false){
+            this.signUpDialog = false
+            this.signInDialog = false
+            this.$router.push('/')
+          }
+        },1500)
+      }
+    }
   },
   name: 'App'
 }
@@ -127,6 +162,42 @@ export default {
 <style>
   body, html, div {
     font-family: 'Montserrat', sans-serif;
+  }
+    .custom-loader {
+    animation: loader 1s infinite;
+    display: flex;
+  }
+  @-moz-keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @-webkit-keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @-o-keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes loader {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 </style>
 

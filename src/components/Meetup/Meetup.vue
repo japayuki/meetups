@@ -8,12 +8,7 @@
                             <h2 class="mb-0">{{meetup.title}}</h2>
                         </div>
                     </v-card-title>
-                    <v-card-media
-                    :src="meetup.imgUrl"
-                    height="400px"
-                    ></v-card-media>
-
-
+                    <v-card-media :src="meetup.imgUrl" height="400px"></v-card-media>
                     <v-card-text>
                         <h3 class="ma-2"><v-icon class="mr-2" left>event</v-icon>{{meetup.date}}</h3> 
                         <h3 class="ma-2"><v-icon class="mr-2" left>access_time</v-icon> {{meetup.time}}</h3>

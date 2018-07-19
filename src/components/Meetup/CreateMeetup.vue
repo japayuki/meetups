@@ -19,21 +19,15 @@
                 <v-textarea name="description" label="Description" v-model="description" clearable :rules="[rules.required]"></v-textarea>
                 <h3>Image Preview</h3>
                 <img :src="imgUrl" style="width:100%" >
-                <v-btn class="primary" type="submit" :disabled="!formIsValid">Create Meetup</v-btn>
+                <!-- <v-btn class="primary" type="submit" :disabled="!formIsValid">Create Meetup</v-btn> -->
+                <v-btn class="primary"  type="submit" :loading="loading" :disabled="loading" >Create Meetup<span slot="loader" class="custom-loader"><v-icon light>cached</v-icon></span></v-btn>
                </form>
            </v-flex>
        </v-layout>
-       <!-- <v-layout row>
-           <v-flex xs12 sm8 offset-sm2 >
-               <form>
-                   <v-text-field name="title" label="Title" required></v-text-field>
-               </form>
-           </v-flex>
-       </v-layout> -->
     </v-container>
 </template>
 <script>
-import { mapMutations, mapActions } from 'vuex';
+import { mapMutations, mapActions, mapGetters } from 'vuex';
 export default {
     
     data () {
@@ -60,9 +54,13 @@ export default {
         }
     },
     computed: {
+        ...mapGetters([
+        'loading'
+        ]),
         formIsValid () {
             return this.title !== "" && this.location !== "" && this.imgUrl !== "" && this.description !== ""
         }
+        
     },
     methods: {
         ...mapActions([
@@ -78,8 +76,7 @@ export default {
                 imgUrl: this.imgUrl,
                 description: this.description,
                 date: this.date,
-                time: this.time,
-                mid: '3432f32f34252'
+                time: this.time
             }
             this.createMeetup(payload)
             this.$router.push("/meetups")

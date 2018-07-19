@@ -14,17 +14,17 @@ export default new Vuex.Store({
             {imgUrl: 'https://c1.staticflickr.com/5/4589/25688225598_f996e79833_b.jpg', mid: 'kj432k42j3d3', title: 'Meetup in Kyoto', date: '2018-11-06', description: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tempore, unde, neque error quod expedita cum dolorem consequatur minus excepturi aperiam, earum quo quos veniam deserunt officiis. Architecto vel aliquid natus!'},
             
         ],
-        users : {
-            id: '3424532543f344',
-            registeredMeetups: ['dfrsedf4353']
+        user : {
+            id: null,
+            registeredMeetups: []
         },
         signUpStatus: {
             hasError: null,
             msg: '',
             type: 'info',
-            showAlert: false,
-            showDialog: false
-        }
+        },
+        loading: false,
+        error: null
     },
     getters: {
         sortedMeetups: state => {
@@ -40,6 +40,12 @@ export default new Vuex.Store({
         },
         signUpStatus: (state) => {
             return state.signUpStatus
+        },
+        user: (state) => {
+            return state.user
+        },
+        loading: (state) => {
+            return state.loading
         }
     },
     mutations: {
@@ -48,42 +54,91 @@ export default new Vuex.Store({
         },
         SET_USER: (state, payload) => {
             console.log('runnning SET_USER')
-            state.users = payload
+            state.user = payload
         },
         UPDATE_SIGNUPSTATUS: (state, payload) => {
             console.log('runnning UPDATE_SIGNUPSTATUS')
             state.signUpStatus = payload
         },
-        SHOW_DIALOG: (state) => {
-            state.signUpStatus.showDialog = true
+        SET_LOADING: (state, payload) => {
+            state.loading = payload
         },
-        HIDE_DIALOG: (state) => {
-            console.log('hiding dialogue')
-            state.signUpStatus.showDialog = false
+        SET_ERROR: (state, payload) => {
+            state.error = payload
+        },
+        FETCHED_MEETUPS: (state, payload) => {
+            state.loadedMeetups = payload
         }
     }, 
     actions: {
+        fetchMeetups: (context) => {
+            firebase.database().ref('meetups').once('value')
+                .then( data => {
+                    const fetchedMeetups = []
+                    const obj = data.val()
+                    for ( let key in obj){
+                        fetchedMeetups.push({
+                            mid: key,
+                            description: obj[key].description,
+                            title: obj[key].title,
+                            imgUrl: obj[key].imgUrl,
+                            location: obj[key].location,
+                            date: obj[key].date,
+                            time: obj[key].time
+                        })
+                    }
+                    console.log(fetchedMeetups)
+                    context.commit('FETCHED_MEETUPS',fetchedMeetups)
+                })
+        },
         createMeetup: (context, payload) => {
-            context.commit("CREATE_MEETUP", payload)
+            firebase.database().ref('meetups').push(payload)
+                .then( data => {
+                    console.log(data)
+                    payload.mid = data.key
+                    context.commit("CREATE_MEETUP", payload)
+                })
+                .catch( error => {
+                    console.log(error)
+                })
         },
         ProceedSignUp: (context, payload) => {
+            context.commit("SET_LOADING", true)
+            context.commit("SET_ERROR", null)
             firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
                 .then(user => {
+                    context.commit("SET_LOADING", false)
                     const newUser = {
                         id: user.user.uid,
-                        registeredMeetups: [],
-                        hasError: false,
-                        msg:'Sign-up Createtion Successful',
-                        type: 'success'
+                        registeredMeetups: []
                     }
                     context.commit("SET_USER", newUser)
-                    context.commit("UPDATE_SIGNUPSTATUS", {hasError: false, msg: 'Sign Up Creation Successful', type:'success', showAlert: true})
-                    context.commit("HIDE_DIALOG")
-
+                    context.commit("UPDATE_SIGNUPSTATUS", {hasError: false, msg: 'Sign Up Creation Successful', type:'success'})
                 })
                 .catch(error => {
-                    context.commit("UPDATE_SIGNUPSTATUS", {hasError: true, msg: error.message, type: 'error', showAlert: true})
-                    context.commit("HIDE_DIALOG")
+                    context.commit("SET_LOADING", false)
+                    context.commit("SET_ERROR", error)
+                    context.commit("UPDATE_SIGNUPSTATUS", {hasError: true, msg: error.message, type: 'error'})
+                })
+        },
+        ProceedSignIn: (context, payload) => {
+            context.commit("SET_LOADING", true)
+            context.commit("SET_ERROR", null)
+            firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
+                .then(user => {
+                    context.commit("SET_LOADING", false)
+                    const newUser = {
+                        id: user.user.uid,
+                        registeredMeetups: []
+                    }
+                    context.commit("SET_USER", newUser)
+                    context.commit("UPDATE_SIGNUPSTATUS", {hasError: false, msg: 'Sign In Successful', type:'success'})
+                })
+                .catch(error => {
+                    console.log(error)
+                    context.commit("SET_LOADING", false)
+                    context.commit("SET_ERROR", error)
+                    context.commit("UPDATE_SIGNUPSTATUS", {hasError: true, msg: error.message, type: 'error'})
                 })
         }
     }
