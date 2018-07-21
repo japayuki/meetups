@@ -13,47 +13,51 @@
 
     <v-dialog v-model="signUpDialog"  max-width="500px">
       <v-card>
-        <v-card-title class="headline blue-grey lighten-5">Sign Up Now</v-card-title>
-        <v-alert class="mb-4" :type="signUpStatus.type" :value="showAlert" >{{signUpStatus.msg}}</v-alert>
-        <v-card-media src="https://images.pexels.com/photos/533444/pexels-photo-533444.jpeg" height="200px"></v-card-media>
-        <v-card-text>
-          <v-container grid-list-md>
-            <v-layout wrap>
-              <v-flex xs12>
-                <v-text-field name="email" type="email" label="Email" v-model="email" :rules="[rules.required]" clearable></v-text-field>
-                <v-text-field name="password" type="password" label="Password" v-model="password" :rules="[rules.required]" clearable></v-text-field>
-                <v-text-field name="confirmPassword" type="password" label="Confirm Password" v-model="confirmPassword" :rules="[rules.required, rules.confirmPassword]" clearable></v-text-field>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn class="primary mb-4 mr-4"  @click="proceedSignUp" :loading="loading" :disabled="loading" >Proceed<span slot="loader" class="custom-loader"><v-icon light>cached</v-icon></span></v-btn>
-        </v-card-actions>
+        <v-form @submit.prevent="proceedSignUp">
+          <v-card-title class="headline blue-grey lighten-5">Sign Up Now</v-card-title>
+          <v-alert class="mb-4" :type="signUpStatus.type" :value="showAlert" >{{signUpStatus.msg}}</v-alert>
+          <v-card-media src="https://images.pexels.com/photos/533444/pexels-photo-533444.jpeg" height="200px"></v-card-media>
+          <v-card-text>
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex xs12>
+                  <v-text-field name="email" type="email" label="Email" v-model="email" :rules="[rules.required]" clearable></v-text-field>
+                  <v-text-field name="password" type="password" label="Password" v-model="password" :rules="[rules.required]" clearable></v-text-field>
+                  <v-text-field name="confirmPassword" type="password" label="Confirm Password" v-model="confirmPassword" :rules="[rules.required, rules.confirmPassword]" clearable></v-text-field>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn class="primary mb-4 mr-4"  type="submit" :loading="loading" :disabled="loading" >Proceed<span slot="loader" class="custom-loader"><v-icon light>cached</v-icon></span></v-btn>
+          </v-card-actions>
+        </v-form>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="signInDialog"  max-width="500px">
       <v-card>
-        <v-card-title class="headline blue-grey lighten-5">Please sign in</v-card-title>
-        <v-alert class="ma-0" :type="signUpStatus.type" :value="showAlert" >{{signUpStatus.msg}}</v-alert>
-        <v-card-media src="https://images.pexels.com/photos/841228/pexels-photo-841228.jpeg" height="200px"></v-card-media>
-        <v-card-text>
-          <v-container grid-list-md>
-            <v-layout wrap>
-              <v-flex xs12>
-                
-                <v-text-field name="email" type="email" label="Email" v-model="email" :rules="[rules.required]" clearable></v-text-field>
-                <v-text-field name="password" type="password" label="Password" v-model="password" :rules="[rules.required]" clearable></v-text-field>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn class="primary mb-4 mr-4"  @click="proceedSignIn" :loading="loading" :disabled="loading" >Proceed<span slot="loader" class="custom-loader"><v-icon light>cached</v-icon></span></v-btn>
-        </v-card-actions>
+        <v-form @submit.prevent="proceedSignIn">
+          <v-card-title class="headline blue-grey lighten-5">Please sign in</v-card-title>
+          <v-alert class="ma-0" :type="signUpStatus.type" :value="showAlert" >{{signUpStatus.msg}}</v-alert>
+          <!-- <v-card-media src="https://images.pexels.com/photos/841228/pexels-photo-841228.jpeg" height="200px"></v-card-media> -->
+          <v-card-media src="../static/pexels-photo-841228.jpeg" height="200px"></v-card-media>
+          <v-card-text>
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex xs12>
+                  <v-text-field name="email" type="email" label="Email" v-model="email" :rules="[rules.required]" clearable></v-text-field>
+                  <v-text-field name="password" type="password" label="Password" v-model="password" :rules="[rules.required]" clearable></v-text-field>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn class="primary mb-4 mr-4"  type="submit" :loading="loading" :disabled="loading" >Proceed<span slot="loader" class="custom-loader"><v-icon light>cached</v-icon></span></v-btn>
+          </v-card-actions>
+        </v-form>
       </v-card>
     </v-dialog>
 

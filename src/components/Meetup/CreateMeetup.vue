@@ -2,7 +2,7 @@
 
     <v-container>
        <v-layout row justify-center>
-           <v-flex xs12 sm8 offset-sm2 >
+           <v-flex xs12 md6 >
                <form @submit.prevent="create_Meetup">
                 <h2>Create a new Meetup</h2>
                 <v-text-field name="title" label="Title" prepend-icon="subtitles" v-model="title" clearable :rules="[rules.required]"></v-text-field>

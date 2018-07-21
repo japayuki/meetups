@@ -1,8 +1,16 @@
 <template>
     <v-container>
+        <v-layout row >
+            <v-flex xs12>
+                <div class="text-xs-center ma-5">
+                    <v-progress-circular :size="70" :width="7" color ="primary" v-if="loading" indeterminate></v-progress-circular>
+                </div>
+            </v-flex>
+        </v-layout>
        <v-layout row wrap>
            <v-flex xs12 sm10 offset-sm1>
-               <v-carousel hide-delimiters="" class='ma-4' contain>
+               
+               <v-carousel hide-delimiters="" class='ma-4' v-if="!loading" contain>
                    <v-carousel-item v-for="item in featuredMeetups" :key="item.mid" :src="item.imgUrl" :to="'/meetup/'+item.mid">
                        <div class='title'>
                            {{item.title}}
@@ -13,10 +21,14 @@
        </v-layout>
        <v-layout row wrap>
            <v-flex xs12 sm6 class="text-xs-center text-sm-right">
+               
                <v-btn large class="primary" router to="/meetups">Explore Meetups</v-btn>
            </v-flex>
            <v-flex xs12 sm6 class="text-xs-center text-sm-left">
-               <v-btn large class="primary" router to="/meetup/new">Organize Meetups</v-btn>
+               <v-tooltip bottom :disabled="user.authenticated">
+                <v-btn large class="primary" router to="/meetup/new" slot="activator" :disabled="!user.authenticated">Organize Meetups</v-btn>
+                <span>You need to Sign In or Sign Up first</span>
+               </v-tooltip>
            </v-flex>
        </v-layout>
 
@@ -33,7 +45,9 @@ export default {
     computed: {
         ...mapGetters([
             'sortedMeetups',
-            'featuredMeetups'
+            'featuredMeetups',
+            'loading',
+            'user'
         ])
     }
 }

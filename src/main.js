@@ -36,6 +36,11 @@ new Vue({
       storageBucket: 'meetups-680cc.appspot.com',
       messagingSenderId: '475927405779'
     })
+    firebase.auth().signOut().then(function() {
+      // Sign-out successful.
+    }).catch(function(error) {
+      // An error happened.
+    });
     this.$store.dispatch('fetchMeetups')
   }
 })
