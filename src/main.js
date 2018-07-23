@@ -7,6 +7,7 @@ import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import * as firebase from 'firebase'
 import store from './store'
+import EditDialog from './components/Meetup/EditMeetupDialog'
 
 Vue.use(Vuetify, { theme: {
   primary: '#053768',
@@ -18,6 +19,7 @@ Vue.use(Vuetify, { theme: {
   warning: '#FFC107'
 }})
 
+Vue.component('app-edit-dialog',EditDialog)
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

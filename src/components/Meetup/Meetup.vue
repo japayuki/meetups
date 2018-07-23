@@ -5,7 +5,10 @@
                <v-card>
                     <v-card-title primary-title>
                         <div>
-                            <h2 class="mb-0">{{meetup.title}}</h2>
+                            <h2 class="mb-0">{{meetup.title}}
+                                
+                                <app-edit-dialog :meetup="meetup" :id="id"></app-edit-dialog>
+                            </h2>
                         </div>
                     </v-card-title>
                     <v-card-media :src="meetup.imgUrl" height="400px"></v-card-media>

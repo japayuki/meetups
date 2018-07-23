@@ -96,10 +96,24 @@ export default new Vuex.Store({
                 })
         },
         createMeetup: (context, payload) => {
+            let key
             firebase.database().ref('meetups').push(payload)
                 .then( data => {
+                    key = data.key
+                    console.log(key)
                     payload.mid = data.key
-                    context.commit("CREATE_MEETUP", payload)
+                    // context.commit("CREATE_MEETUP", payload)
+                    const ext = payload.image.name.slice(payload.image.name.lastIndexOf('.'))
+                    return firebase.storage().ref('meetups/'+ key + ext).put(payload.image)
+                })
+                .then ( fileUploadInfo => {
+                    console.log(fileUploadInfo)
+                    fileUploadInfo.ref.getDownloadURL()
+                        .then( downloadURL => {
+                            payload.imgUrl = downloadURL
+                            firebase.database().ref('meetups').child(key).update({imgUrl: downloadURL})
+                            context.commit("CREATE_MEETUP", payload)
+                        })
                 })
                 .catch( error => {
                     console.log(error)
@@ -145,6 +159,19 @@ export default new Vuex.Store({
                     context.commit("SET_ERROR", error)
                     context.commit("UPDATE_SIGNUPSTATUS", {hasError: true, msg: error.message, type: 'error'})
                 })
+        },
+        updateMeetup: (context, payload) => {
+            firebase.database().ref('meetups').child(payload.id).update({
+                title: payload.title,
+                location: payload.location,
+                date: payload.date,
+                time: payload.time,
+                description: payload.description
+            }).then( result => {
+                console.log(result)
+            }).catch( error => {
+                console.log(error)
+            })
         }
     }
 })
