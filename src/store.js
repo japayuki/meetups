@@ -17,7 +17,8 @@ export default new Vuex.Store({
         user : {
             id: null,
             registeredMeetups: [],
-            authenticated: false
+            authenticated: false,
+            username: ''
         },
         signUpStatus: {
             hasError: null,
@@ -34,7 +35,7 @@ export default new Vuex.Store({
             })
         },
         featuredMeetups: (state, getters) => {
-            return getters.sortedMeetups.slice(0,3)
+            return getters.sortedMeetups.slice(0,4)
         },
         loadedMeetup: (state) => (id) => {
             return state.loadedMeetups.find( meetup => meetup.mid === id)
@@ -47,6 +48,31 @@ export default new Vuex.Store({
         },
         loading: (state) => {
             return state.loading
+        },
+        myMeetups: (state, getters) => {
+            let myMeetups = []
+            state.user.registeredMeetups.forEach(element => {
+                myMeetups.push(getters.loadedMeetup(element.meetupId))    
+            });
+            return myMeetups  
+            
+        },
+        testMeetups: (state, getters) => {
+            let list = getters.sortedMeetups.map( obj => {
+                let rObj = {}
+                rObj.creatorId = obj.creatorId,
+                rObj.creatorName = obj.creatorName,
+                rObj.title = obj.title,
+                rObj.date = obj.date,
+                rObj.description = obj.description,
+                rObj.imgUrl = obj.imgUrl,
+                rObj.location = obj.location,
+                rObj.mid = obj.mid,
+                rObj.time = obj.time,
+                rObj.myMeetup = state.user.registeredMeetups.findIndex( meetup => meetup.meetupId === obj.mid) >= 0 ? true : false
+                return rObj
+            })
+            return list
         }
     },
     mutations: {
@@ -67,6 +93,12 @@ export default new Vuex.Store({
         },
         FETCHED_MEETUPS: (state, payload) => {
             state.loadedMeetups = payload
+        },
+        REGISTER_MEETUP: (state, payload) => {
+            state.user.registeredMeetups.push(payload)
+        },
+        UNREGISTER_MEETUP: (state, payload) => {
+            state.user.registeredMeetups.splice(payload,1)
         }
     }, 
     actions: {
@@ -85,7 +117,9 @@ export default new Vuex.Store({
                             imgUrl: obj[key].imgUrl,
                             location: obj[key].location,
                             date: obj[key].date,
-                            time: obj[key].time
+                            time: obj[key].time,
+                            creatorId: obj[key].creatorId,
+                            creatorName: obj[key].creatorName
                         })
                     }
                     context.commit('FETCHED_MEETUPS',fetchedMeetups)
@@ -100,9 +134,8 @@ export default new Vuex.Store({
             firebase.database().ref('meetups').push(payload)
                 .then( data => {
                     key = data.key
-                    console.log(key)
+                    console.log(context.getters.user.id)
                     payload.mid = data.key
-                    // context.commit("CREATE_MEETUP", payload)
                     const ext = payload.image.name.slice(payload.image.name.lastIndexOf('.'))
                     return firebase.storage().ref('meetups/'+ key + ext).put(payload.image)
                 })
@@ -113,6 +146,14 @@ export default new Vuex.Store({
                             payload.imgUrl = downloadURL
                             firebase.database().ref('meetups').child(key).update({imgUrl: downloadURL})
                             context.commit("CREATE_MEETUP", payload)
+                            firebase.database().ref('users/' + context.getters.user.id + '/registeredMeetups').push(key)
+                            .then( (data) => {
+                                context.commit("REGISTER_MEETUP",{key: data.key, meetupId: key})
+                            })
+                            .catch( error => {
+                                console.log(error)
+                            })
+                            
                         })
                 })
                 .catch( error => {
@@ -127,9 +168,15 @@ export default new Vuex.Store({
                     context.commit("SET_LOADING", false)
                     const newUser = {
                         id: user.user.uid,
+                        username: payload.username,
                         registeredMeetups: [],
-                        authenticated: true
+                        authenticated: true,
+                        email: user.user.email
                     }
+                    firebase.database().ref('users/' + user.user.uid).set({
+                        username: payload.username,
+                        registeredMeetups: []
+                    });
                     context.commit("SET_USER", newUser)
                     context.commit("UPDATE_SIGNUPSTATUS", {hasError: false, msg: 'Sign Up Creation Successful', type:'success'})
                 })
@@ -145,12 +192,24 @@ export default new Vuex.Store({
             firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
                 .then(user => {
                     context.commit("SET_LOADING", false)
-                    const newUser = {
-                        id: user.user.uid,
-                        registeredMeetups: [],
-                        authenticated: true
-                    }
-                    context.commit("SET_USER", newUser)
+                    let registeredMeetups = []
+                    firebase.database().ref('users/' + user.user.uid).once('value')
+                        .then (data=> {
+                        const obj = data.val().registeredMeetups
+
+                        for ( let key in obj){
+                            console.log(obj[key])
+                            registeredMeetups.push({key: key, meetupId:obj[key]})
+                        }
+                        const loggedInUser = {
+                            id: user.user.uid,
+                            authenticated: true,
+                            registeredMeetups: registeredMeetups,
+                            username: data.val().username,
+                            email: user.user.email
+                        }
+                        context.commit("SET_USER", loggedInUser)
+                    })
                     context.commit("UPDATE_SIGNUPSTATUS", {hasError: false, msg: 'Sign In Successful', type:'success'})
                 })
                 .catch(error => {
@@ -172,6 +231,30 @@ export default new Vuex.Store({
             }).catch( error => {
                 console.log(error)
             })
-        }
+        },
+        registerToMeetup: (context, payload) => {
+            firebase.database().ref('users/' + payload.id + '/registeredMeetups').push(payload.meetupId)
+                .then( data => {
+                    context.commit("REGISTER_MEETUP",{key: data.key, meetupId: payload.meetupId})
+                })
+                .catch( error => {
+                    console.log(error)
+                })
+        },
+        unRegisterToMeetup: (context,payload) => {
+            let key = context.getters.user.registeredMeetups.find( meetup => meetup.meetupId === payload.meetupId)
+            console.log(key.key)
+            firebase.database().ref('users/' + payload.id + '/registeredMeetups').child(key.key).remove()
+                .then (() => {
+                    let mkey = context.state.user.registeredMeetups.findIndex( el => el.meetupId === payload.meetupId)
+                    console.log(mkey)
+                    context.commit("UNREGISTER_MEETUP", mkey)
+                    
+                })
+                .catch( error => {
+                    console.log(error)
+                })
+            
+        }   
     }
 })

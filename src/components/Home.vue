@@ -8,7 +8,7 @@
             </v-flex>
         </v-layout>
        <v-layout row wrap>
-           <v-flex xs12 sm10 offset-sm1>
+           <v-flex xs12 sm8 offset-sm2>
                
                <v-carousel hide-delimiters="" class='ma-4' v-if="!loading" contain>
                    <v-carousel-item v-for="item in featuredMeetups" :key="item.mid" :src="item.imgUrl" :to="'/meetup/'+item.mid">

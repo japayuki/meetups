@@ -21,6 +21,7 @@
             <v-container grid-list-md>
               <v-layout wrap>
                 <v-flex xs12>
+                  <v-text-field name="username" type="text" label="Username" v-model="username" :rules="[rules.required]" clearable></v-text-field>
                   <v-text-field name="email" type="email" label="Email" v-model="email" :rules="[rules.required]" clearable></v-text-field>
                   <v-text-field name="password" type="password" label="Password" v-model="password" :rules="[rules.required]" clearable></v-text-field>
                   <v-text-field name="confirmPassword" type="password" label="Confirm Password" v-model="confirmPassword" :rules="[rules.required, rules.confirmPassword]" clearable></v-text-field>
@@ -87,6 +88,7 @@ export default {
       sideNav: null,
       signUpDialog: false,
       signInDialog: false,
+      username: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -110,7 +112,7 @@ export default {
       'ProceedSignIn'
     ]),
     proceedSignUp () {
-      this.ProceedSignUp({email: this.email, password: this.password })
+      this.ProceedSignUp({email: this.email, password: this.password, username: this.username })
     },
     proceedSignIn () {
       this.loader = true

@@ -84,7 +84,8 @@ export default {
                 description: this.description,
                 date: this.date,
                 time: this.time,
-                creatorId: this.user.id
+                creatorId: this.user.id,
+                creatorName: this.user.username
             }
             this.createMeetup(payload)
             this.$router.push("/meetups")
